@@ -20,12 +20,9 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  publicar:
+  preparar:
+    name: Preparar sitio
     runs-on: ubuntu-latest
-
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
       - name: Obtener archivos del repositorio
@@ -39,11 +36,24 @@ jobs:
           mkdir -p _sitio
           cp index.html styles.css _sitio/
 
-      - name: Preparar publicación
+      - name: Subir paquete del sitio
         uses: actions/upload-pages-artifact@v4
         with:
+          name: github-pages
           path: _sitio
 
+  publicar:
+    name: Publicar sitio
+    needs: preparar
+    runs-on: ubuntu-latest
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
       - name: Publicar en GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+        with:
+          artifact_name: github-pages
