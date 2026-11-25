@@ -1,0 +1,49 @@
+name: Publicar sitio Ruta Local
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "index.html"
+      - "styles.css"
+      - ".github/workflows/deploy.yml"
+
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: false
+
+jobs:
+  publicar:
+    runs-on: ubuntu-latest
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Obtener archivos del repositorio
+        uses: actions/checkout@v6
+
+      - name: Configurar GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Preparar archivos del sitio
+        run: |
+          mkdir -p _sitio
+          cp index.html styles.css _sitio/
+
+      - name: Preparar publicación
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: _sitio
+
+      - name: Publicar en GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
