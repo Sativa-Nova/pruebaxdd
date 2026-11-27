@@ -1,13 +1,12 @@
+
 name: Publicar sitio Ruta Local
 
 on:
   push:
-    branches: ["main"]
+    branches: [main]
     paths:
-      - "index.html"
-      - "styles.css"
-      - ".github/workflows/deploy.yml"
-
+      - 'index.html'
+      - 'styles.css'
   workflow_dispatch:
 
 permissions:
@@ -15,45 +14,21 @@ permissions:
   pages: write
   id-token: write
 
-concurrency:
-  group: github-pages
-  cancel-in-progress: false
-
 jobs:
-  preparar:
-    name: Preparar sitio
+  publicar:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Obtener archivos del repositorio
+      - name: Obtener archivos
         uses: actions/checkout@v6
 
       - name: Configurar GitHub Pages
         uses: actions/configure-pages@v5
 
-      - name: Preparar archivos del sitio
-        run: |
-          mkdir -p _sitio
-          cp index.html styles.css _sitio/
-
-      - name: Subir paquete del sitio
+      - name: Subir sitio
         uses: actions/upload-pages-artifact@v4
         with:
-          name: github-pages
-          path: _sitio
+          path: '.'
 
-  publicar:
-    name: Publicar sitio
-    needs: preparar
-    runs-on: ubuntu-latest
-
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-
-    steps:
-      - name: Publicar en GitHub Pages
-        id: deployment
+      - name: Publicar sitio
         uses: actions/deploy-pages@v4
-        with:
-          artifact_name: github-pages
